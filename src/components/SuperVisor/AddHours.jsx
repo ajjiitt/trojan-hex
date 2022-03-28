@@ -28,6 +28,7 @@ const AddHours = () => {
       .addHours(address, amount)
       .send({ from: adminAddress });
     console.log(addedHours);
+    location.reload()
   };
 
   return (

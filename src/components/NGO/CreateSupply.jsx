@@ -4,7 +4,7 @@ import { intializeContract, getAccountID } from "../../utils/connectWallet";
 import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 const CreateSupply = () => {
-  const contractAddress = "0x2138770145401C76c2B50CE775AE4c2546F107a2";
+  const contractAddress = "0xc226b7A0bf726De824Ef44aac09C29Cd1F6172C7";
   const contract = intializeContract(abiArray, contractAddress);
   const adminAddress = localStorage.account;
   const [inputs, setinputs] = useState({
@@ -25,9 +25,11 @@ const CreateSupply = () => {
   };
 
   const sendSupplies = async (index) => {
+    console.log(index);
     const initiateSupply = await contract.methods
       .sendSupplies(index)
-      .call({ from: adminAddress });
+      .send({ from: adminAddress });
+    console.log(initiateSupply);
   };
   const getRequest = async () => {
     let requestarr = [];
@@ -41,11 +43,11 @@ const CreateSupply = () => {
       let request = await contract.methods.requests(adminAddress, i).call();
       console.log(request);
       if (request.requestState === "0") {
-        requestarr.push({ ...request, state: "Created" });
+        requestarr.push({ ...request, state: "Created", index: i });
       } else if (request.requestState === "1") {
-        requestarr.push({ ...request, state: "Dispatched" });
+        requestarr.push({ ...request, state: "Dispatched", index: i });
       } else if (request.requestState === "2") {
-        requestarr.push({ ...request, state: "Successful" });
+        requestarr.push({ ...request, state: "Successful", index: i });
       }
     }
     setRequests(requestarr);
@@ -177,6 +179,9 @@ const CreateSupply = () => {
               <th className="px-4 py-3 title-font tracking-wider font-medium text-gray-900 text-sm bg-gray-100">
                 Request State
               </th>
+              <th className="px-4 py-3 title-font tracking-wider font-medium text-gray-900 text-sm bg-gray-100">
+                Dispatch
+              </th>
             </tr>
           </thead>
           <tbody>
@@ -187,6 +192,16 @@ const CreateSupply = () => {
                   <td className="px-4 py-3">{r.supplyType}</td>
                   <td className="px-4 py-3">{r.amount}</td>
                   <td className="px-4 py-3">{r?.state}</td>
+                  <td className="px-4 py-3">
+                    <button
+                      onClick={() => {
+                        sendSupplies(r.index);
+                      }}
+                      class="flex mx-auto mt-16 text-white bg-green-500 border-0 px-8 focus:outline-none hover:bg-green-800 rounded text-lg"
+                    >
+                      Accept
+                    </button>
+                  </td>
                 </tr>
               ))
             ) : (
